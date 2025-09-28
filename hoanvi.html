@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Hoán vị Cipher</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #43cea2, #185a9d);
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 0;
+    }
+
+    .container {
+      background: #fff;
+      padding: 25px 30px;
+      border-radius: 12px;
+      box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+      width: 420px;
+      text-align: center;
+    }
+
+    h2 {
+      margin-bottom: 20px;
+      color: #2c3e50;
+    }
+
+    textarea, input, select {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background: #185a9d;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      font-size: 15px;
+      cursor: pointer;
+      margin-top: 8px;
+    }
+
+    button:hover {
+      background: #0f3d6d;
+    }
+
+    .result {
+      margin-top: 15px;
+      padding: 12px;
+      background: #f8f9fa;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-family: monospace;
+      color: #333;
+      text-align: left;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>🔐 Hoán vị Cipher</h2>
+
+    <textarea id="plaintext" placeholder="Nhập văn bản..."></textarea>
+
+    <input type="text" id="key" placeholder="Nhập thứ tự hoán vị (vd: 3,1,2)">
+
+    <select id="mode">
+      <option value="encrypt">Mã hóa</option>
+      <option value="decrypt">Giải mã</option>
+    </select>
+
+    <button onclick="runPermutation()">Thực hiện</button>
+
+    <div class="result" id="result">📂 Kết quả sẽ hiển thị ở đây...</div>
+  </div>
+
+  <script>
+    // Chuyển khóa từ chuỗi sang mảng số
+    function parseKey(str) {
+      return str.split(",").map(x => parseInt(x.trim()) - 1);
+    }
+
+    // Mã hóa Hoán vị
+    function hoanviEncrypt(text, key) {
+      const n = key.length;
+      let result = "";
+      text = text.replace(/\s+/g, "");
+      for (let i = 0; i < text.length; i += n) {
+        let block = text.substring(i, i + n).split("");
+        let encrypted = new Array(n);
+        for (let j = 0; j < n; j++) {
+          encrypted[j] = block[key[j]] || "X"; // Thêm X nếu thiếu ký tự
+        }
+        result += encrypted.join("");
+      }
+      return result;
+    }
+
+    // Giải mã Hoán vị
+    function hoanviDecrypt(text, key) {
+      const n = key.length;
+      let result = "";
+      for (let i = 0; i < text.length; i += n) {
+        let block = text.substring(i, i + n).split("");
+        let decrypted = new Array(n);
+        for (let j = 0; j < n; j++) {
+          decrypted[key[j]] = block[j];
+        }
+        result += decrypted.join("");
+      }
+      return result;
+    }
+
+    // Hàm xử lý chính
+    function runPermutation() {
+      const text = document.getElementById("plaintext").value;
+      const keyInput = document.getElementById("key").value;
+      const mode = document.getElementById("mode").value;
+      const resultBox = document.getElementById("result");
+
+      if (!text || !keyInput) {
+        resultBox.textContent = "⚠️ Vui lòng nhập văn bản và khóa!";
+        return;
+      }
+
+      const key = parseKey(keyInput);
+      let output = "";
+
+      if (mode === "encrypt") {
+        output = hoanviEncrypt(text, key);
+      } else {
+        output = hoanviDecrypt(text, key);
+      }
+
+      resultBox.textContent = "✅ Kết quả: " + output;
+    }
+  </script>
+</body>
+</html>

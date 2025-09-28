@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Affine Cipher</title>
+  <style>
+    body {
+      font-family: "Segoe UI", sans-serif;
+      background: linear-gradient(120deg, #ff9966, #ff5e62);
+      min-height: 100vh;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .container {
+      background: white;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+      max-width: 450px;
+      width: 100%;
+      text-align: center;
+    }
+    h2 {
+      margin-bottom: 20px;
+      color: #333;
+    }
+    textarea, input, select, button {
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 15px;
+    }
+    button {
+      background: #ff5e62;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    button:hover {
+      background: #ff9966;
+    }
+    .result {
+      margin-top: 15px;
+      padding: 12px;
+      background: #f9f9f9;
+      border-radius: 8px;
+      min-height: 50px;
+      font-weight: bold;
+      color: #444;
+      white-space: pre-wrap;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>🔐 Affine Cipher</h2>
+    <textarea id="inputText" rows="3" placeholder="Nhập chuỗi..."></textarea>
+    <input type="number" id="a" placeholder="Hệ số a (phải nguyên tố cùng 26)">
+    <input type="number" id="b" placeholder="Hệ số b">
+    <select id="mode">
+      <option value="encrypt">Mã hóa</option>
+      <option value="decrypt">Giải mã</option>
+    </select>
+    <button onclick="process()">Thực hiện</button>
+    <div class="result" id="result">👉 Kết quả sẽ hiển thị ở đây</div>
+  </div>
+
+  <script>
+    // Tìm nghịch đảo modular
+    function modInverse(a, m) {
+      a = ((a % m) + m) % m;
+      for (let x = 1; x < m; x++) {
+        if ((a * x) % m === 1) return x;
+      }
+      return -1; // không tồn tại
+    }
+
+    function affineEncrypt(text, a, b) {
+      let res = "";
+      for (let i = 0; i < text.length; i++) {
+        let c = text[i];
+        if (/[a-zA-Z]/.test(c)) {
+          let base = (c === c.toUpperCase()) ? 65 : 97;
+          let code = text.charCodeAt(i) - base;
+          res += String.fromCharCode(((a * code + b) % 26 + 26) % 26 + base);
+        } else {
+          res += c;
+        }
+      }
+      return res;
+    }
+
+    function affineDecrypt(text, a, b) {
+      let inv = modInverse(a, 26);
+      if (inv === -1) return "❌ Không tồn tại nghịch đảo modular cho a = " + a;
+      let res = "";
+      for (let i = 0; i < text.length; i++) {
+        let c = text[i];
+        if (/[a-zA-Z]/.test(c)) {
+          let base = (c === c.toUpperCase()) ? 65 : 97;
+          let code = text.charCodeAt(i) - base;
+          let val = (inv * (code - b + 26)) % 26;
+          res += String.fromCharCode(val + base);
+        } else {
+          res += c;
+        }
+      }
+      return res;
+    }
+
+    function process() {
+      let text = document.getElementById("inputText").value;
+      let a = parseInt(document.getElementById("a").value) || 1;
+      let b = parseInt(document.getElementById("b").value) || 0;
+      let mode = document.getElementById("mode").value;
+
+      let output = (mode === "encrypt") 
+        ? affineEncrypt(text, a, b) 
+        : affineDecrypt(text, a, b);
+
+      document.getElementById("result").innerText = "👉 " + output;
+    }
+  </script>
+</body>
+</html>
